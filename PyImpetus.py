@@ -36,7 +36,7 @@ def tqdm_joblib(tqdm_object):
         yield tqdm_object
     finally:
         joblib.parallel.BatchCompletionCallBack = old_batch_callback
-        tqdm_object.close()   
+        tqdm_object.close()
 
 
 
@@ -167,7 +167,7 @@ class PPIMBC(TransformerMixin, BaseEstimator):
         # Since each feature's importance is checked individually, we can therefore run them in parallel
         parallel = Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
         feats_and_pval = parallel(delayed(self._PPI)(data[col].values, Y, None, col) for col in data.columns)
-        
+
         # Sort the features according to their importance (decreasing order)
         feats_and_pval.sort(key = lambda x: x[1], reverse=True)
         # Only significant features are added the MB
@@ -268,7 +268,7 @@ class PPIMBC(TransformerMixin, BaseEstimator):
                 else:
                     feature_sets.append(tmp[i][0])
                     scores.append(tmp[i][1])
-                
+
             # Now get all the features and find their frequencies
             final_feats = dict()
             for fs in feature_sets:
@@ -291,7 +291,7 @@ class PPIMBC(TransformerMixin, BaseEstimator):
             # Sort the features according to their importance
             tmp_feats_and_imp = list(zip(final_MB, final_feat_imp))
             tmp_feats_and_imp.sort(key = lambda x: x[1], reverse=True)
-            
+
             self.MB = [i for i, _ in tmp_feats_and_imp]
             self.feat_imp_scores = [i for _, i in tmp_feats_and_imp]
 
@@ -301,12 +301,12 @@ class PPIMBC(TransformerMixin, BaseEstimator):
             # Sort the features according to their importance
             tmp_feats_and_imp = list(zip(final_MB, final_feat_imp))
             tmp_feats_and_imp.sort(key = lambda x: x[1], reverse=True)
-            
+
             self.MB = [i for i, _ in tmp_feats_and_imp]
             self.feat_imp_scores = [i for _, i in tmp_feats_and_imp]
 
 
-    
+
 
     #--------------------------------------------------------------
     # transform() - Function that returns the MB part of the data #
@@ -333,6 +333,9 @@ class PPIMBC(TransformerMixin, BaseEstimator):
     # feature_importance() - Wrapper function for plotting feature importance #
     #--------------------------------------------------------------------------
     def feature_importance(self):
+
+        fig = plt.figure()
+
         y_axis = np.arange(len(self.MB))
         x_axis = self.feat_imp_scores
 
@@ -341,8 +344,8 @@ class PPIMBC(TransformerMixin, BaseEstimator):
         plt.xlabel("Importance Scores")
         plt.ylabel("Features")
         sns.despine()
-        plt.show()
-        
+        # plt.show()
+        return fig
 
 
 
@@ -464,7 +467,7 @@ class PPIMBR(TransformerMixin, BaseEstimator):
         parallel = Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
         feats_and_pval = parallel(delayed(self._PPI)(data[col].values, Y, None, col) for col in data.columns)
         #feats_and_pval = [self._CPI(data[col].values, Y, None, col) for col in tqdm(data.columns)]
-        
+
         # Sort the features according to their importance (decreasing order)
         feats_and_pval.sort(key = lambda x: x[1], reverse=True)
         # Only significant features are added the MB
@@ -565,7 +568,7 @@ class PPIMBR(TransformerMixin, BaseEstimator):
                 else:
                     feature_sets.append(tmp[i][0])
                     scores.append(tmp[i][1])
-                
+
             # Now get all the features and find their frequencies
             final_feats = dict()
             for fs in feature_sets:
@@ -584,11 +587,11 @@ class PPIMBR(TransformerMixin, BaseEstimator):
                     final_MB = fs
                     final_feat_imp = feat_imp
                     max_score = score
-                    
+
             # Sort the features according to their importance
             tmp_feats_and_imp = list(zip(final_MB, final_feat_imp))
             tmp_feats_and_imp.sort(key = lambda x: x[1], reverse=True)
-            
+
             self.MB = [i for i, _ in tmp_feats_and_imp]
             self.feat_imp_scores = [i for _, i in tmp_feats_and_imp]
 
@@ -598,12 +601,12 @@ class PPIMBR(TransformerMixin, BaseEstimator):
             # Sort the features according to their importance
             tmp_feats_and_imp = list(zip(final_MB, final_feat_imp))
             tmp_feats_and_imp.sort(key = lambda x: x[1], reverse=True)
-            
+
             self.MB = [i for i, _ in tmp_feats_and_imp]
             self.feat_imp_scores = [i for _, i in tmp_feats_and_imp]
 
 
-    
+
 
     #--------------------------------------------------------------
     # transform() - Function that returns the MB part of the data #
@@ -630,12 +633,14 @@ class PPIMBR(TransformerMixin, BaseEstimator):
     # feature_importance() - Wrapper function for plotting feature importance #
     #--------------------------------------------------------------------------
     def feature_importance(self):
+
+        fig = plt.figure()
         y_axis = np.arange(len(self.MB))
         x_axis = self.feat_imp_scores
-
         sns.barplot(x=x_axis, y=y_axis, orient="h")
         plt.yticks(y_axis, [str(i) for i in self.MB], size='small')
         plt.xlabel("Importance Scores")
         plt.ylabel("Features")
         sns.despine()
-        plt.show()
+        # plt.show()
+        return fig
